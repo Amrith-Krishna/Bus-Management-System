@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+
+        body {
+            background-color: #1e2a47;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            height: 100vh;
+            color: #fff;
+            overflow-y: auto;
+            padding-top: 40px; /* Add space to avoid overlap */
+        }
+        .seat-gap {
+    height: 50px; /* Adjust this value to create the gap between rows */
+}
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: #2a3b6b;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #f39c12;
+            font-size: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #f39c12;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        button:hover {
+            background-color: #e67e22;
+        }
+
+        /* Dashboard styling */
+        .dashboard {
+            width: 100%;
+            background: #2a3b6b;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        #studentInfo {
+            position: fixed;
+            top: 10px;
+            right: 20px;
+            background-color: #f39c12;
+            color: #fff;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 16px;
+            z-index: 1000; /* Ensure it stays on top */
+        }
+        .user-info {
+            position: fixed;
+            top: 10px;
+            right: 20px;
+            background-color: #f39c12;
+            color: white;
+            padding: 10px; /* Consistent padding */
+            border-radius: 5px; /* Slightly less rounded */
+            font-weight: bold;
+            font-size: 16px;
+            z-index: 1000;
+            display: none;
+            /* Added for square shape (adjust size as needed) */
+            width: auto; /* Or a fixed width if you prefer */
+            height: auto; /* Or a fixed height if you prefer */
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Add a shadow for depth */
+        }
+        .user-info span{
+            display: inline-block;
+            padding: 5px;
+            border-radius: 3px;
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+
+        /* Bus Seating Map Styling */
+        .seat-map {
+            margin-top: 70px; /* Ensures there's enough space for header */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+            border: 2px solid #f39c12;
+            border-radius: 15px;
+            padding: 10px;
+            background-color: #1e2a47;
+        }
+
+        .seat-row {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        .seat {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #2ecc71;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .seat.selected {
+            background-color: #f39c12;
+            color: white;
+        }
+
+        .row-label {
+            font-weight: bold;
+            text-transform: uppercase;
+            padding-right: 15px;
+            font-size: 18px;
+        }
+        .seat.unavailable {
+            background-color: #e74c3c; /* Red for unavailable */
+            color: white;
+            cursor: default; /* Make it clear it's not clickable */
+        }
+        /* Bus Route & Driver Styling */
+        .info-box {
+            display: grid; /* Use grid for better layout */
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Responsive columns */
+            gap: 20px; /* Spacing between boxes */
+            margin-top: 30px;
+        }
+
+        .route-box, .driver-box {
+            background-color: #f39c12;
+            color: white;
+            padding: 20px; /* Increased padding */
+            border-radius: 10px; /* More rounded corners */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* More prominent shadow */
+            overflow: hidden; /* Prevents content from overflowing */
+            transition: transform 0.2s ease, box-shadow 0.2s ease; /* Smooth transitions */
+        }
+
+        .route-box:hover, .driver-box:hover {
+            transform: translateY(-5px); /* Slight lift on hover */
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3); /* Darker shadow on hover */
+        }
+
+        .route-box h4, .driver-box h4 {
+            margin-bottom: 15px;
+            color: #fff; /* White heading */
+            text-transform: uppercase; /* Uppercase headings */
+            font-weight: bold;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.5); /* Subtle underline */
+            padding-bottom: 5px;
+        }
+
+        .route-box p {
+            font-size: 16px; /* Slightly larger font */
+            line-height: 1.6;  /* Improved line height */
+            margin-bottom: 10px; /* Spacing between paragraphs */
+        }
+        .route-box p strong{
+            color: #f8f9fa;
+        }
+
+        .driver-box p {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+
+        /* Chat Section */
+        .chat-container {
+            margin-top: 30px;
+        }
+
+        .chat-box {
+            width: 100%;
+            height: 300px;
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 10px;
+            overflow-y: scroll;
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .chat-box .message {
+            margin-bottom: 10px;
+        }
+
+        .chat-box .message .user {
+            font-weight: bold;
+            color: #f39c12;
+        }
+
+        .chat-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        /* Fix for top-right box with register number */
+        #studentInfo {
+            position: fixed;
+            top: 10px;
+            right: 20px;
+            background-color: #f39c12;
+            color: #fff;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 16px;
+            z-index: 1000; /* Ensure it stays on top */
+        }
+
+        /* Updated Bus Header Style */
+        .seat-map h3 {
+            font-size: 28px;
+            color: #f39c12;
+            margin-bottom: 20px;
+        }
+
+        
+
+    </style>
+</head>
+<body>
+    <!-- Dashboard Page -->
+<div class="dashboard" id="dashboard">
+    <div class="header">
+        <h2>Welcome to Your Bus Portal</h2>
+    </div>
+
+    <!-- Bus Seating Arrangement -->
+    <div class="seat-map" id="seatMap">
+        <h3>Bus Seating Map</h3>
+        <div class="seat-row">
+            <span class="row-label">A</span>
+            <div class="seat" data-seat="A1">A1</div>
+            <div class="seat" data-seat="A2">A2</div>
+            <div class="seat" data-seat="A3">A3</div>
+            <div class="seat" data-seat="A4">A4</div>
+            <div class="seat" data-seat="A5">A5</div>
+            <div class="seat" data-seat="A6">A6</div>
+            <div class="seat" data-seat="A7">A7</div>
+            <div class="seat" data-seat="A8">A8</div>
+            <div class="seat" data-seat="A9">A9</div>
+            <div class="seat" data-seat="A10">A10</div>
+        </div>
+        <div class="seat-row">
+            <span class="row-label">B</span>
+            <div class="seat" data-seat="B1">B1</div>
+            <div class="seat" data-seat="B2">B2</div>
+            <div class="seat" data-seat="B3">B3</div>
+            <div class="seat" data-seat="B4">B4</div>
+            <div class="seat" data-seat="B5">B5</div>
+            <div class="seat" data-seat="B6">B6</div>
+            <div class="seat" data-seat="B7">B7</div>
+            <div class="seat" data-seat="B8">B8</div>
+            <div class="seat" data-seat="B9">B9</div>
+            <div class="seat" data-seat="B10">B10</div>
+        </div>
+        <div class="seat-row">
+            <span class="row-label">C</span>
+            <div class="seat" data-seat="C1">C1</div>
+            <div class="seat" data-seat="C2">C2</div>
+            <div class="seat" data-seat="C3">C3</div>
+            <div class="seat" data-seat="C4">C4</div>
+            <div class="seat" data-seat="C5">C5</div>
+            <div class="seat" data-seat="C6">C6</div>
+            <div class="seat" data-seat="C7">C7</div>
+            <div class="seat" data-seat="C8">C8</div>
+            <div class="seat" data-seat="C9">C9</div>
+            <div class="seat" data-seat="C10">C10</div>
+        </div>
+        <div class="seat-gap"></div>
+        <div class="seat-row">
+            <span class="row-label">D</span>
+            <div class="seat" data-seat="D1">D1</div>
+            <div class="seat" data-seat="D2">D2</div>
+            <div class="seat" data-seat="D3">D3</div>
+            <div class="seat" data-seat="D4">D4</div>
+            <div class="seat" data-seat="D5">D5</div>
+            <div class="seat" data-seat="D6">D6</div>
+            <div class="seat" data-seat="D7">D7</div>
+            <div class="seat" data-seat="D8">D8</div>
+            <div class="seat" data-seat="D9">D9</div>
+            <div class="seat" data-seat="D10">D10</div>
+        </div>
+        <div class="seat-row">
+            <span class="row-label">E</span>
+            <div class="seat" data-seat="E1">E1</div>
+            <div class="seat" data-seat="E2">E2</div>
+            <div class="seat" data-seat="E3">E3</div>
+            <div class="seat" data-seat="E4">E4</div>
+            <div class="seat" data-seat="E5">E5</div>
+            <div class="seat" data-seat="E6">E6</div>
+            <div class="seat" data-seat="E7">E7</div>
+            <div class="seat" data-seat="E8">E8</div>
+            <div class="seat" data-seat="E9">E9</div>
+            <div class="seat" data-seat="E10">E10</div>
+        </div>
+    </div>
+
+    <!-- Bus Route & Driver Info -->
+    <div class="info-box">
+        <div class="route-box">
+            <h4>Onward Journey</h4>
+            <p>Stop 1: 6:45 AM - Adyar</p>
+            <p>Stop 2: 7:10 AM - Mylapore</p>
+            <p>Stop 3: 7:30 AM - Velacheri</p>
+            <p>Stop 4: 7:40 AM - Vandalur</p>
+            <p>Stop 4: 7:55 AM - VIT Chennai</p>
+            
+        </div>
+        <div class="route-box">
+            <h4>Return Journey</h4>
+            <p>Stop 1: 5:00 PM - Main Gate</p>
+            <p>Stop 2: 5:30 PM - Vandalur</p>
+            <p>Stop 3: 6:00 PM - Velacheri</p>
+            <p>Stop 4: 6:30 PM - Mylapore</p>
+            <p>Stop 5: 6:50 PM - Adyar</p>
+        </div>
+        <div class="driver-box">
+            <h4>Driver Information</h4>
+            <p>Driver: Abdul Mohammad</p>
+            <p>Contact: +91 73465 11909</p>
+        </div>
+    </div>
+
+    <div class="chat-container">
+        <div class="chat-box" id="chatBox"></div>
+        <input type="text" id="chatInput" class="chat-input" placeholder="Type your message..." onkeydown="sendMessage(event)">
+    </div>
+
+</div>
+
+<script>
+     const seatAvailability = {
+            "A1": true, "A2": false, "A3": true, "A4": true, "A5": false, "A6": true, "A7": true, "A8": true, "A9": false, "A10": true,
+            "B1": true, "B2": true, "B3": false, "B4": true, "B5": true, "B6": false, "B7": true, "B8": true, "B9": true, "B10": false,
+            "C1": false, "C2": true, "C3": true, "C4": false, "C5": true, "C6": true, "C7": false, "C8": true, "C9": true, "C10": true,
+            "D1": true, "D2": true, "D3": true, "D4": true, "D5": false, "D6": true, "D7": true, "D8": false, "D9": true, "D10": true,
+            "E1": false, "E2": true, "E3": false, "E4": true, "E5": true, "E6": true, "E7": true, "E8": true, "E9": false, "E10": true
+        };
+
+        document.addEventListener('DOMContentLoaded', () => { // Wait for DOM to load
+            const seats = document.querySelectorAll(".seat");
+
+            seats.forEach(seat => {
+                const seatNumber = seat.dataset.seat;
+                if (seatAvailability[seatNumber]) {
+                    // Seat is available
+                    seat.addEventListener("click", () => {
+                        seat.classList.toggle("selected");
+                    });
+                } else {
+                    // Seat is unavailable
+                    seat.classList.add("unavailable");
+                }
+            });
+        });
+
+    function sendMessage(event) {
+        if (event.key === 'Enter') {
+            const chatInput = document.getElementById("chatInput");
+            const message = chatInput.value.trim();
+            if (message) {
+                const newMessage = document.createElement("div");
+                newMessage.classList.add("message");
+                newMessage.innerHTML = `<span class="user">You: </span>${message}`;
+                document.getElementById("chatBox").appendChild(newMessage);
+                chatInput.value = "";
+            }
+        }
+    }
+
+    document.querySelectorAll(".seat").forEach(seat => {
+        seat.addEventListener("click", () => {
+            seat.classList.toggle("selected");
+        });
+    });
+</script>
+</body>
+</html>
